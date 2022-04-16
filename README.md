@@ -27,5 +27,6 @@ In library:
 about salesman Exact. More accurate solution of the traveling salesman problem by means of dynamic programming (if the number of vertices is more than 20, you should not use it)
 about salesman fast. Faster solution of the traveling salesman problem using simulated annealing.
 The code contains the constants NO_WAY and NEGATIVE_CYCLE equal to 9 * 10^18 and -9 * 10^18 mean the absence of a path or edge and the inclusion of a vertex in a negative cycle, respectively.
+
 In order to make sure that the codes are correct, they were tested on the following resources: codeforces.com + informatics.msk.ru + algocode.ru
 The code design was made according to the recommendations of Stanford University.
