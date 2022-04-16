@@ -21,7 +21,7 @@ To use the library, add the files `FunctionForGraph.cpp` and `graphlib.h` to the
   * Convert from adjacency matrix to adjacency list (fromAdjacencyMatrixToListOfAdjacencies)
   * shortWayDijkstra. Finding the shortest path between two vertices using Dijkstra's algorithm (edges must be of non-negative weight). The input is a start vertex, an end vertex, and a graph in the form of an adjacency matrix. Returns ResultShortWay.
   * shortWayFordBellman. Finding the shortest path between two vertices using the Ford-Bellman algorithm (no limit on all edges, but if there are no negative edges, then Dijkstra's algorithm is better). The input is a start vertex, an end vertex, and a graph in the form of an adjacency matrix. Returns ResultShortWay.
-  * short Way Floyd. The input is an adjacency matrix, the matrix of the shortest paths from each vertex to each is returned (there are no restrictions on the weight of edges).
+  * shortWayFloyd. The input is an adjacency matrix, the matrix of the shortest paths from each vertex to each is returned (there are no restrictions on the weight of edges).
   * shortWayBFS. Finding the shortest path between two BFS vertices (edges must be unweighted, i.e. equal to 1). The input is a start vertex, an end vertex, and a graph in the form of an adjacency matrix. Returns ResultShortWay.
 about salesman Exact. More accurate solution of the traveling salesman problem by means of dynamic programming (if the number of vertices is more than 20, you should not use it)
 about salesman fast. Faster solution of the traveling salesman problem using simulated annealing.
