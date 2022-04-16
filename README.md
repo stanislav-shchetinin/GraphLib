@@ -11,7 +11,7 @@ To use the library, add the files `FunctionForGraph.cpp` and `graphlib.h` to the
   * A structure for the vertex that the edge goes to in the adjacency list (SecondVert). Stores the vertex number and edge weight. Contains 3 constructors (empty, unweighted edge input, weighted edge input). 1 operator overloaded: “less than” (needed to sort vertices)
   * A structure that stores the answer for functions on the shortest paths (ResultShortWay). Stores the shortest path between the start and end vertices, an array of shortest paths from the start to the rest, the shortest path from the start to the end vertex itself.
   * A structure for storing an ancestor in the dynamic programming traveling salesman problem (ParentSalesman). Stores in itself a mask, and the last peak in a way. The "not equal" operator is overloaded.
-* 13 algorithms:
+## 13 algorithms:
   * Vertex compression (vertCompression). If you need to convert the graph to an adjacency list and if there are vertex numbers > 10^6, then you need to compress the vertices. The input is a list of edges and the converted list of edges is returned.
   * Convert from list of edges to adjacency list (fromListOfEdgesToListOfAdjacencies). It is required to specify a directed graph or not (default is not).
   * Convert from list of adjacencies to list of edges (fromListOfAdjacenciesToListOfEdges).
