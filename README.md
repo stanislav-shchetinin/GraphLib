@@ -7,8 +7,8 @@ To use the library, add the files `FunctionForGraph.cpp` and `graphlib.h` to the
 ```
 # Library description
 In library:
-• 4 structures:
-o Edge structure. Stores the vertex numbers of the edge and the weight of the edge. Contains 3 constructors (empty, unweighted edge input, weighted edge input). 5 operators overloaded: equality (checks for equality of vertices and weight), input (first vertex, second, weight respectively), output (format {first vertex number, second vertex number, edge weight}), decrement (reduces vertex numbers by 1) , “less than” (needed to sort edges).
+* 4 structures:
+** Edge structure. Stores the vertex numbers of the edge and the weight of the edge. Contains 3 constructors (empty, unweighted edge input, weighted edge input). 5 operators overloaded: equality (checks for equality of vertices and weight), input (first vertex, second, weight respectively), output (format {first vertex number, second vertex number, edge weight}), decrement (reduces vertex numbers by 1) , “less than” (needed to sort edges).
 o A structure for the vertex that the edge goes to in the adjacency list (SecondVert). Stores the vertex number and edge weight. Contains 3 constructors (empty, unweighted edge input, weighted edge input). 1 operator overloaded: “less than” (needed to sort vertices)
 o A structure that stores the answer for functions on the shortest paths (ResultShortWay). Stores the shortest path between the start and end vertices, an array of shortest paths from the start to the rest, the shortest path from the start to the end vertex itself.
 o A structure for storing an ancestor in the dynamic programming traveling salesman problem (ParentSalesman). Stores in itself a mask, and the last peak in a way. The "not equal" operator is overloaded.
