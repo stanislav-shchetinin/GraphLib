@@ -6,7 +6,7 @@
 
 const long long NO_WAY = 9e18, NEGATIVE_CYCLE = -9e18;
 
-//Структура ребра (два номера вершин, вес, по умолчанию вес равен 1)
+//РЎС‚СЂСѓРєС‚СѓСЂР° СЂРµР±СЂР° (РґРІР° РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ, РІРµСЃ, РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РІРµСЃ СЂР°РІРµРЅ 1)
 struct Edge {
     int firstVert = -1, secondVert = -1;
     long long weight = 1;
@@ -14,21 +14,21 @@ struct Edge {
     Edge(int firstVert, int secondVert, long long weight) :firstVert(firstVert), secondVert(secondVert), weight(weight) {}
     Edge(int firstVert, int secondVert) :firstVert(firstVert), secondVert(secondVert) {}
 
-    //Два ребра равные, если совпадают начала и концы и вес
+    //Р”РІР° СЂРµР±СЂР° СЂР°РІРЅС‹Рµ, РµСЃР»Рё СЃРѕРІРїР°РґР°СЋС‚ РЅР°С‡Р°Р»Р° Рё РєРѕРЅС†С‹ Рё РІРµСЃ
     friend const bool operator==(const Edge& x, const Edge& y) {
         return bool(x.firstVert == y.firstVert && x.secondVert == y.secondVert && x.weight == y.weight);
     }
-    //Вывод ребра
+    //Р’С‹РІРѕРґ СЂРµР±СЂР°
     friend std::ostream& operator<<(std::ostream& cout, const Edge& edge) {
         cout << "{ first_vert: " << edge.firstVert << ", second_vert: " << edge.secondVert << ", weight: " << edge.weight << " }";
         return cout;
     }
-    //Ввод ребра
+    //Р’РІРѕРґ СЂРµР±СЂР°
     friend std::istream& operator>>(std::istream& cin, Edge& edge) {
         cin >> edge.firstVert >> edge.secondVert >> edge.weight;
         return cin;
     }
-    //--edge уменьшает на единицу номера вершин
+    //--edge СѓРјРµРЅСЊС€Р°РµС‚ РЅР° РµРґРёРЅРёС†Сѓ РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ
     Edge& operator--() {
         --firstVert;
         --secondVert;
@@ -36,7 +36,7 @@ struct Edge {
     }
 };
 
-//Структура вершины, которая соеденена ребром с первой вершиной в списке смежностей (номер вершины, вес, по умолчанию равен 1)
+//РЎС‚СЂСѓРєС‚СѓСЂР° РІРµСЂС€РёРЅС‹, РєРѕС‚РѕСЂР°СЏ СЃРѕРµРґРµРЅРµРЅР° СЂРµР±СЂРѕРј СЃ РїРµСЂРІРѕР№ РІРµСЂС€РёРЅРѕР№ РІ СЃРїРёСЃРєРµ СЃРјРµР¶РЅРѕСЃС‚РµР№ (РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹, РІРµСЃ, РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЂР°РІРµРЅ 1)
 struct SecondVert {
     int vert = -1;
     long long weight = 1;
@@ -44,16 +44,16 @@ struct SecondVert {
     SecondVert(int vert) :vert(vert) {}
     SecondVert(int vert, long long weight) :vert(vert), weight(weight) {}
 
-    //Нужно для использование set
+    //РќСѓР¶РЅРѕ РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ set
     friend const bool operator<(const SecondVert& x, const SecondVert& y) {
         return bool((x.weight < y.weight) || (x.weight == y.weight && x.vert < y.vert));
     }
 
 };
 
-//Структура для кратчайших путей (после выполнения алгоритма есть информация о кратчайшем расстоянии
-//между двумя вершинами, кратчайшем расстоянии от стартовой до всех остальных, номера вершин, 
-//которые представляют из себя кратчайший путь между вершинами)
+//РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РєСЂР°С‚С‡Р°Р№С€РёС… РїСѓС‚РµР№ (РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° РµСЃС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РєСЂР°С‚С‡Р°Р№С€РµРј СЂР°СЃСЃС‚РѕСЏРЅРёРё
+//РјРµР¶РґСѓ РґРІСѓРјСЏ РІРµСЂС€РёРЅР°РјРё, РєСЂР°С‚С‡Р°Р№С€РµРј СЂР°СЃСЃС‚РѕСЏРЅРёРё РѕС‚ СЃС‚Р°СЂС‚РѕРІРѕР№ РґРѕ РІСЃРµС… РѕСЃС‚Р°Р»СЊРЅС‹С…, РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ, 
+//РєРѕС‚РѕСЂС‹Рµ РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‚ РёР· СЃРµР±СЏ РєСЂР°С‚С‡Р°Р№С€РёР№ РїСѓС‚СЊ РјРµР¶РґСѓ РІРµСЂС€РёРЅР°РјРё)
 struct ResultShortWay {
     long long distStartFinish = NO_WAY;
     std::vector <long long> dist;
@@ -61,7 +61,7 @@ struct ResultShortWay {
     ResultShortWay() {}
 };
 
-//Структура данных для хранения предков в задача о комивояжёре
+//РЎС‚СЂСѓРєС‚СѓСЂР° РґР°РЅРЅС‹С… РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїСЂРµРґРєРѕРІ РІ Р·Р°РґР°С‡Р° Рѕ РєРѕРјРёРІРѕСЏР¶С‘СЂРµ
 struct ParentSalesman {
     long long mask;
     int last;
