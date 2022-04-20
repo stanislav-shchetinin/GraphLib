@@ -8,15 +8,15 @@
 
 const long long NO_WAY = 9e18, NEGATIVE_CYCLE = -9e18;
 
-//рандомное число между 0 и 1 (нецелое)
+//СЂР°РЅРґРѕРјРЅРѕРµ С‡РёСЃР»Рѕ РјРµР¶РґСѓ 0 Рё 1 (РЅРµС†РµР»РѕРµ)
 long double rand01() {
     return (long double)(rand()) / RAND_MAX;
 }
 
-//генератор случайных чисел
+//РіРµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 std::mt19937 rnd(time(0));
 
-//Структура ребра (два номера вершин, вес, по умолчанию вес равен 1)
+//РЎС‚СЂСѓРєС‚СѓСЂР° СЂРµР±СЂР° (РґРІР° РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ, РІРµСЃ, РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РІРµСЃ СЂР°РІРµРЅ 1)
 struct Edge {
     int firstVert = -1, secondVert = -1;
     long long weight = 1;
@@ -24,27 +24,27 @@ struct Edge {
     Edge(int firstVert, int secondVert, long long weight) :firstVert(firstVert), secondVert(secondVert), weight(weight) {}
     Edge(int firstVert, int secondVert) :firstVert(firstVert), secondVert(secondVert) {}
 
-    //Два ребра равные, если совпадают начала и концы и вес
+    //Р”РІР° СЂРµР±СЂР° СЂР°РІРЅС‹Рµ, РµСЃР»Рё СЃРѕРІРїР°РґР°СЋС‚ РЅР°С‡Р°Р»Р° Рё РєРѕРЅС†С‹ Рё РІРµСЃ
     friend const bool operator==(const Edge& x, const Edge& y) {
         return bool(x.firstVert == y.firstVert && x.secondVert == y.secondVert && x.weight == y.weight);
     }
-    //Вывод ребра
+    //Р’С‹РІРѕРґ СЂРµР±СЂР°
     friend std::ostream& operator<<(std::ostream& cout, const Edge& edge) {
         cout << "{ first_vert: " << edge.firstVert << ", second_vert: " << edge.secondVert << ", weight: " << edge.weight << " }";
         return cout;
     }
-    //Ввод ребра
+    //Р’РІРѕРґ СЂРµР±СЂР°
     friend std::istream& operator>>(std::istream& cin, Edge& edge) {
         cin >> edge.firstVert >> edge.secondVert >> edge.weight;
         return cin;
     }
-    //--edge уменьшает на единицу номера вершин
+    //--edge СѓРјРµРЅСЊС€Р°РµС‚ РЅР° РµРґРёРЅРёС†Сѓ РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ
     Edge& operator--() {
         --firstVert;
         --secondVert;
         return *this;
     }
-    //Для сортировки
+    //Р”Р»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
     friend const bool operator<(const Edge& x, const Edge& y) {
         return bool(x.firstVert < y.firstVert || x.firstVert == y.firstVert && x.secondVert < y.secondVert ||
             x.firstVert == y.firstVert && x.secondVert == y.secondVert && x.weight < y.weight);
@@ -52,7 +52,7 @@ struct Edge {
 };
 
 
-//Структура вершины, которая соеденена ребром с первой вершиной в списке смежностей (номер вершины, вес, по умолчанию равен 1)
+//РЎС‚СЂСѓРєС‚СѓСЂР° РІРµСЂС€РёРЅС‹, РєРѕС‚РѕСЂР°СЏ СЃРѕРµРґРµРЅРµРЅР° СЂРµР±СЂРѕРј СЃ РїРµСЂРІРѕР№ РІРµСЂС€РёРЅРѕР№ РІ СЃРїРёСЃРєРµ СЃРјРµР¶РЅРѕСЃС‚РµР№ (РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹, РІРµСЃ, РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЂР°РІРµРЅ 1)
 struct SecondVert {
     int vert = -1;
     long long weight = 1;
@@ -60,16 +60,16 @@ struct SecondVert {
     SecondVert(int vert) :vert(vert) {}
     SecondVert(int vert, long long weight) :vert(vert), weight(weight) {}
 
-    //Нужно для использование set
+    //РќСѓР¶РЅРѕ РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ set
     friend const bool operator<(const SecondVert& x, const SecondVert& y) {
         return bool((x.weight < y.weight) || (x.weight == y.weight && x.vert < y.vert));
     }
 
 };
 
-//Структура для кратчайших путей (после выполнения алгоритма есть информация о кратчайшем расстоянии
-//между двумя вершинами, кратчайшем расстоянии от стартовой до всех остальных, номера вершин, 
-//которые представляют из себя кратчайший путь между вершинами)
+//РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РєСЂР°С‚С‡Р°Р№С€РёС… РїСѓС‚РµР№ (РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° РµСЃС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РєСЂР°С‚С‡Р°Р№С€РµРј СЂР°СЃСЃС‚РѕСЏРЅРёРё
+//РјРµР¶РґСѓ РґРІСѓРјСЏ РІРµСЂС€РёРЅР°РјРё, РєСЂР°С‚С‡Р°Р№С€РµРј СЂР°СЃСЃС‚РѕСЏРЅРёРё РѕС‚ СЃС‚Р°СЂС‚РѕРІРѕР№ РґРѕ РІСЃРµС… РѕСЃС‚Р°Р»СЊРЅС‹С…, РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ, 
+//РєРѕС‚РѕСЂС‹Рµ РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‚ РёР· СЃРµР±СЏ РєСЂР°С‚С‡Р°Р№С€РёР№ РїСѓС‚СЊ РјРµР¶РґСѓ РІРµСЂС€РёРЅР°РјРё)
 struct ResultShortWay {
     long long distStartFinish = NO_WAY;
     std::vector <long long> dist;
@@ -78,7 +78,7 @@ struct ResultShortWay {
     ResultShortWay(long long distStartFinish, std::vector <int> shortWay) :distStartFinish(distStartFinish), shortWay(shortWay) {}
 };
 
-//Структура данных для хранения предков в задача о комивояжёре
+//РЎС‚СЂСѓРєС‚СѓСЂР° РґР°РЅРЅС‹С… РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїСЂРµРґРєРѕРІ РІ Р·Р°РґР°С‡Р° Рѕ РєРѕРјРёРІРѕСЏР¶С‘СЂРµ
 struct ParentSalesman {
     long long mask;
     int last;
@@ -91,16 +91,16 @@ struct ParentSalesman {
 
 };
 
-//Функция проверки минимального и максимального номера вершины (используется для преоброзования представления графа из списка ребер)
-//maxAllowedVal - максимальное допустимое значение
-//Так же функция возвращает максимальный номер вершины в графе
+//Р¤СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂРєРё РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ Рё РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РЅРѕРјРµСЂР° РІРµСЂС€РёРЅС‹ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїСЂРµРѕР±СЂРѕР·РѕРІР°РЅРёСЏ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РіСЂР°С„Р° РёР· СЃРїРёСЃРєР° СЂРµР±РµСЂ)
+//maxAllowedVal - РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ
+//РўР°Рє Р¶Рµ С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹ РІ РіСЂР°С„Рµ
 int checkNumVec(std::vector <Edge> listOfEdges, int maxAllowedVal) {
 
-    int maxNumVec = -1; //Максимальный номер ребра, изначально даем минимально возмжное значение, т.е. -1
-    int minNumVec = maxAllowedVal + 1; //Минимальный номер ребра, изначально даем минимально возможное значение, т.е 10^6 + 1
+    int maxNumVec = -1; //РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ СЂРµР±СЂР°, РёР·РЅР°С‡Р°Р»СЊРЅРѕ РґР°РµРј РјРёРЅРёРјР°Р»СЊРЅРѕ РІРѕР·РјР¶РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, С‚.Рµ. -1
+    int minNumVec = maxAllowedVal + 1; //РњРёРЅРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ СЂРµР±СЂР°, РёР·РЅР°С‡Р°Р»СЊРЅРѕ РґР°РµРј РјРёРЅРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, С‚.Рµ 10^6 + 1
     for (size_t i = 0; i < listOfEdges.size(); ++i) {
-        //Максимальный номер вершины будет максимумом из себя и двух вершин, которыми задано ребро номер i
-        //Минимальный номер вершины будет минимумом из себя и двух вершин, которыми задано ребро номер i
+        //РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹ Р±СѓРґРµС‚ РјР°РєСЃРёРјСѓРјРѕРј РёР· СЃРµР±СЏ Рё РґРІСѓС… РІРµСЂС€РёРЅ, РєРѕС‚РѕСЂС‹РјРё Р·Р°РґР°РЅРѕ СЂРµР±СЂРѕ РЅРѕРјРµСЂ i
+        //РњРёРЅРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹ Р±СѓРґРµС‚ РјРёРЅРёРјСѓРјРѕРј РёР· СЃРµР±СЏ Рё РґРІСѓС… РІРµСЂС€РёРЅ, РєРѕС‚РѕСЂС‹РјРё Р·Р°РґР°РЅРѕ СЂРµР±СЂРѕ РЅРѕРјРµСЂ i
         maxNumVec = std::max({ maxNumVec, listOfEdges[i].firstVert, listOfEdges[i].secondVert });
         minNumVec = std::min({ minNumVec, listOfEdges[i].firstVert, listOfEdges[i].secondVert });
     }
@@ -115,7 +115,7 @@ int checkNumVec(std::vector <Edge> listOfEdges, int maxAllowedVal) {
     }
     catch (int numError) {
 
-        //Максимальный/минимальный номер вершины слишком маленький/большой, предлагается сжать номера
+        //РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№/РјРёРЅРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹ СЃР»РёС€РєРѕРј РјР°Р»РµРЅСЊРєРёР№/Р±РѕР»СЊС€РѕР№, РїСЂРµРґР»Р°РіР°РµС‚СЃСЏ СЃР¶Р°С‚СЊ РЅРѕРјРµСЂР°
 
         if (numError == 1) {
             std::cout << "Error #" << numError <<
@@ -132,15 +132,15 @@ int checkNumVec(std::vector <Edge> listOfEdges, int maxAllowedVal) {
     return maxNumVec;
 }
 
-//Индексация ведется с 0
+//РРЅРґРµРєСЃР°С†РёСЏ РІРµРґРµС‚СЃСЏ СЃ 0
 
-//Функция сжатия номеров вершин в графе, представленном списком ребер
+//Р¤СѓРЅРєС†РёСЏ СЃР¶Р°С‚РёСЏ РЅРѕРјРµСЂРѕРІ РІРµСЂС€РёРЅ РІ РіСЂР°С„Рµ, РїСЂРµРґСЃС‚Р°РІР»РµРЅРЅРѕРј СЃРїРёСЃРєРѕРј СЂРµР±РµСЂ
 std::vector <Edge> vertCompression(std::vector <Edge> listOfEdges) {
     
     int curNum = 0;
     std::map <int, int> map;
 
-    //Сопостовление номерам вершин числу от 0 до количества вершин
+    //РЎРѕРїРѕСЃС‚РѕРІР»РµРЅРёРµ РЅРѕРјРµСЂР°Рј РІРµСЂС€РёРЅ С‡РёСЃР»Сѓ РѕС‚ 0 РґРѕ РєРѕР»РёС‡РµСЃС‚РІР° РІРµСЂС€РёРЅ
     for (size_t i = 0; i < listOfEdges.size(); ++i) {
 
         if (!map[listOfEdges[i].firstVert]) {
@@ -165,10 +165,10 @@ std::vector <Edge> vertCompression(std::vector <Edge> listOfEdges) {
     
 }
 
-//Изменение представления графа
-//Перевод из списка ребер в список cмежностей
-//Максимальный номер вершины графы не должен превышать 10^6 минимальный номер не может быть меньше 0
-//isOrientedEdge = 0, если граф неориентированный, иначе = 1 (по умолчанию равен 0)
+//РР·РјРµРЅРµРЅРёРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РіСЂР°С„Р°
+//РџРµСЂРµРІРѕРґ РёР· СЃРїРёСЃРєР° СЂРµР±РµСЂ РІ СЃРїРёСЃРѕРє cРјРµР¶РЅРѕСЃС‚РµР№
+//РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹ РіСЂР°С„С‹ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 10^6 РјРёРЅРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ 0
+//isOrientedEdge = 0, РµСЃР»Рё РіСЂР°С„ РЅРµРѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Р№, РёРЅР°С‡Рµ = 1 (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЂР°РІРµРЅ 0)
 
 std::vector <std::vector <SecondVert>> fromListOfEdgesToListOfAdjacencies(std::vector <Edge> listOfEdges, bool isOrientedEdge = false) {
 
@@ -186,7 +186,7 @@ std::vector <std::vector <SecondVert>> fromListOfEdgesToListOfAdjacencies(std::v
     return result;
 }
 
-//Перевод из списка смежностей в список ребер
+//РџРµСЂРµРІРѕРґ РёР· СЃРїРёСЃРєР° СЃРјРµР¶РЅРѕСЃС‚РµР№ РІ СЃРїРёСЃРѕРє СЂРµР±РµСЂ
 std::vector <Edge> fromListOfAdjacenciesToListOfEdges(std::vector <std::vector <SecondVert>> listOfAdjacencies) {
     std::vector <Edge> result;
     for (size_t firstVert = 0; firstVert < listOfAdjacencies.size(); ++firstVert) {
@@ -197,9 +197,9 @@ std::vector <Edge> fromListOfAdjacenciesToListOfEdges(std::vector <std::vector <
     return result;
 }
 
-//Перевод из списка ребер в матрицу смежностей
-//Максимальное значение = 10^3, так как иначе будет использовано слишком много памяти
-//valNoEdge - значение, которое обозначает, что между i-ой строкой и j-ым столбом (i, j - номера вершин графа) нету ребра, по умолчанию равно 1e9                    
+//РџРµСЂРµРІРѕРґ РёР· СЃРїРёСЃРєР° СЂРµР±РµСЂ РІ РјР°С‚СЂРёС†Сѓ СЃРјРµР¶РЅРѕСЃС‚РµР№
+//РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ = 10^3, С‚Р°Рє РєР°Рє РёРЅР°С‡Рµ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ СЃР»РёС€РєРѕРј РјРЅРѕРіРѕ РїР°РјСЏС‚Рё
+//valNoEdge - Р·РЅР°С‡РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ РѕР±РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РјРµР¶РґСѓ i-РѕР№ СЃС‚СЂРѕРєРѕР№ Рё j-С‹Рј СЃС‚РѕР»Р±РѕРј (i, j - РЅРѕРјРµСЂР° РІРµСЂС€РёРЅ РіСЂР°С„Р°) РЅРµС‚Сѓ СЂРµР±СЂР°, РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЂР°РІРЅРѕ 1e9                    
 std::vector <std::vector <int>> fromListOfEdgesToAdjacencyMatrix(std::vector <Edge> listOfEdges, int valNoEdge = 1e9, bool isOrientedEdge = false) {
     int maxNumVec = checkNumVec(listOfEdges, (int)1e3);
     std::vector <std::vector <int>> result(maxNumVec + 1, std::vector <int>(maxNumVec + 1, valNoEdge));
@@ -215,7 +215,7 @@ std::vector <std::vector <int>> fromListOfEdgesToAdjacencyMatrix(std::vector <Ed
 
 }
 
-//Перевод из матрицы смежности в список ребер
+//РџРµСЂРµРІРѕРґ РёР· РјР°С‚СЂРёС†С‹ СЃРјРµР¶РЅРѕСЃС‚Рё РІ СЃРїРёСЃРѕРє СЂРµР±РµСЂ
 std::vector <Edge> fromAdjacencyMatrixToListOfEdges(std::vector <std::vector <int>> adjacencyMatrix, int valNoEdge) {
     std::vector <Edge> result;
 
@@ -231,7 +231,7 @@ std::vector <Edge> fromAdjacencyMatrixToListOfEdges(std::vector <std::vector <in
 
 }
 
-//Перевод из списка смежностей в матрицу смежностей
+//РџРµСЂРµРІРѕРґ РёР· СЃРїРёСЃРєР° СЃРјРµР¶РЅРѕСЃС‚РµР№ РІ РјР°С‚СЂРёС†Сѓ СЃРјРµР¶РЅРѕСЃС‚РµР№
 std::vector <std::vector<int>> fromListOfAdjacenciesToAdjacencyMatrix(std::vector <std::vector<SecondVert>> listOfAdjacencies, int valNoEdge) {
     int maxNumVec = listOfAdjacencies.size(), minNumVec = 0;
     int maxAllowedVal = (int)1e3;
@@ -245,7 +245,7 @@ std::vector <std::vector<int>> fromListOfAdjacenciesToAdjacencyMatrix(std::vecto
     }
     catch (int numError) {
 
-        //Максимальный/минимальный номер вершины слишком маленький/большой, предлагается сжать номера
+        //РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№/РјРёРЅРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂС€РёРЅС‹ СЃР»РёС€РєРѕРј РјР°Р»РµРЅСЊРєРёР№/Р±РѕР»СЊС€РѕР№, РїСЂРµРґР»Р°РіР°РµС‚СЃСЏ СЃР¶Р°С‚СЊ РЅРѕРјРµСЂР°
 
         if (numError == 1) {
             std::cout << "Error #" << numError <<
@@ -271,7 +271,7 @@ std::vector <std::vector<int>> fromListOfAdjacenciesToAdjacencyMatrix(std::vecto
 
 }
 
-//Перевод из матрицы смежностей в список смежностей
+//РџРµСЂРµРІРѕРґ РёР· РјР°С‚СЂРёС†С‹ СЃРјРµР¶РЅРѕСЃС‚РµР№ РІ СЃРїРёСЃРѕРє СЃРјРµР¶РЅРѕСЃС‚РµР№
 std::vector <std::vector<SecondVert>> fromAdjacencyMatrixToListOfAdjacencies(std::vector <std::vector <int>> adjacencyMatrix, int valNoEdge) {
     std::vector <std::vector <SecondVert>> result(adjacencyMatrix.size());
     for (size_t i = 0; i < adjacencyMatrix.size(); ++i) {
@@ -285,8 +285,8 @@ std::vector <std::vector<SecondVert>> fromAdjacencyMatrixToListOfAdjacencies(std
 
 }
 
-//Функция поиска минимального пути (Алгоритм Дейкстры), если ответом является NO_WAY значит пути нет
-//Граф задан списком смежностей
+//Р¤СѓРЅРєС†РёСЏ РїРѕРёСЃРєР° РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ РїСѓС‚Рё (РђР»РіРѕСЂРёС‚Рј Р”РµР№РєСЃС‚СЂС‹), РµСЃР»Рё РѕС‚РІРµС‚РѕРј СЏРІР»СЏРµС‚СЃСЏ NO_WAY Р·РЅР°С‡РёС‚ РїСѓС‚Рё РЅРµС‚
+//Р“СЂР°С„ Р·Р°РґР°РЅ СЃРїРёСЃРєРѕРј СЃРјРµР¶РЅРѕСЃС‚РµР№
 ResultShortWay shortWayDijkstra(int startVer, int finishVer, std::vector <std::vector<SecondVert>> graph) {
     ResultShortWay result;
     std::vector <int> parent;
@@ -341,8 +341,8 @@ void dfs(int ver, std::vector <bool>& used, std::vector <std::vector<SecondVert>
     }
 }
 
-//Поиск кратчайшего пути (Алгоритм Форда-Беллмана)
-//Граф задан списком смежностей
+//РџРѕРёСЃРє РєСЂР°С‚С‡Р°Р№С€РµРіРѕ РїСѓС‚Рё (РђР»РіРѕСЂРёС‚Рј Р¤РѕСЂРґР°-Р‘РµР»Р»РјР°РЅР°)
+//Р“СЂР°С„ Р·Р°РґР°РЅ СЃРїРёСЃРєРѕРј СЃРјРµР¶РЅРѕСЃС‚РµР№
 ResultShortWay shortWayFordBellman(int startVer, int finishVer, std::vector <std::vector<SecondVert>> graph) {
 
     ResultShortWay result;
@@ -352,7 +352,7 @@ ResultShortWay shortWayFordBellman(int startVer, int finishVer, std::vector <std
     result.dist[startVer] = 0;
     std::vector <Edge> edge = fromListOfAdjacenciesToListOfEdges(graph);
 
-    //Итерации релаксации
+    //РС‚РµСЂР°С†РёРё СЂРµР»Р°РєСЃР°С†РёРё
     for (int i = 0; i < n - 1; ++i) {
         for (auto curEd : edge) {
             if (result.dist[curEd.firstVert] < NO_WAY) {
@@ -364,7 +364,7 @@ ResultShortWay shortWayFordBellman(int startVer, int finishVer, std::vector <std
         }
     }
 
-    //вершины, которые входят в отриц цикл
+    //РІРµСЂС€РёРЅС‹, РєРѕС‚РѕСЂС‹Рµ РІС…РѕРґСЏС‚ РІ РѕС‚СЂРёС† С†РёРєР»
     std::set <int> verNegativeCycleMain, verNegativeCycleCol;
 
     for (auto curEd : edge) {
@@ -400,9 +400,9 @@ ResultShortWay shortWayFordBellman(int startVer, int finishVer, std::vector <std
     return result;
 }
 
-//Поиск кратчайшего пути (Алгоритм Форда-Беллмана)
-//Граф задан матрицей смежностей
-//Возвращает матрицу, в которой на пересечении i, j кратчайший путь от вершины i до вершины j
+//РџРѕРёСЃРє РєСЂР°С‚С‡Р°Р№С€РµРіРѕ РїСѓС‚Рё (РђР»РіРѕСЂРёС‚Рј Р¤РѕСЂРґР°-Р‘РµР»Р»РјР°РЅР°)
+//Р“СЂР°С„ Р·Р°РґР°РЅ РјР°С‚СЂРёС†РµР№ СЃРјРµР¶РЅРѕСЃС‚РµР№
+//Р’РѕР·РІСЂР°С‰Р°РµС‚ РјР°С‚СЂРёС†Сѓ, РІ РєРѕС‚РѕСЂРѕР№ РЅР° РїРµСЂРµСЃРµС‡РµРЅРёРё i, j РєСЂР°С‚С‡Р°Р№С€РёР№ РїСѓС‚СЊ РѕС‚ РІРµСЂС€РёРЅС‹ i РґРѕ РІРµСЂС€РёРЅС‹ j
 std::vector <std::vector <long long>> shortWayFloyd(std::vector <std::vector <long long>> graph) {
     int n = graph.size();
     for (int i = 0; i < n; ++i) {
@@ -423,8 +423,8 @@ std::vector <std::vector <long long>> shortWayFloyd(std::vector <std::vector <lo
 
 }
 
-//Функция поиска кратчайшего пути (только для невзешанных графов)
-//Граф подается ввиде списка смежностей
+//Р¤СѓРЅРєС†РёСЏ РїРѕРёСЃРєР° РєСЂР°С‚С‡Р°Р№С€РµРіРѕ РїСѓС‚Рё (С‚РѕР»СЊРєРѕ РґР»СЏ РЅРµРІР·РµС€Р°РЅРЅС‹С… РіСЂР°С„РѕРІ)
+//Р“СЂР°С„ РїРѕРґР°РµС‚СЃСЏ РІРІРёРґРµ СЃРїРёСЃРєР° СЃРјРµР¶РЅРѕСЃС‚РµР№
 ResultShortWay shortWayBFS(int startVer, int finishVert, std::vector <std::vector <SecondVert>> graph) {
     int n = graph.size();
     ResultShortWay result;
@@ -465,9 +465,9 @@ ResultShortWay shortWayBFS(int startVer, int finishVert, std::vector <std::vecto
 
 }
 
-//Точная, но медленная реализация задачи о комивояжёре
-//Граф задается матрицей смежности
-//Не стоит использовать, если количество вершин в графе больше 20
+//РўРѕС‡РЅР°СЏ, РЅРѕ РјРµРґР»РµРЅРЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ Р·Р°РґР°С‡Рё Рѕ РєРѕРјРёРІРѕСЏР¶С‘СЂРµ
+//Р“СЂР°С„ Р·Р°РґР°РµС‚СЃСЏ РјР°С‚СЂРёС†РµР№ СЃРјРµР¶РЅРѕСЃС‚Рё
+//РќРµ СЃС‚РѕРёС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ, РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РІРµСЂС€РёРЅ РІ РіСЂР°С„Рµ Р±РѕР»СЊС€Рµ 20
 ResultShortWay salesmanExact(int startVert, std::vector <std::vector <int>> graph) {
 
     int n = graph.size();
@@ -542,9 +542,9 @@ long long sumDist(std::vector <int> result, std::vector <Edge>& graph) {
     return dist;
 }
 
-//Быстрая, но менее точная реализация задачи о комивояжёре
-//Стартовая вершина = 0
-//Граф задается списком ребер
+//Р‘С‹СЃС‚СЂР°СЏ, РЅРѕ РјРµРЅРµРµ С‚РѕС‡РЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ Р·Р°РґР°С‡Рё Рѕ РєРѕРјРёРІРѕСЏР¶С‘СЂРµ
+//РЎС‚Р°СЂС‚РѕРІР°СЏ РІРµСЂС€РёРЅР° = 0
+//Р“СЂР°С„ Р·Р°РґР°РµС‚СЃСЏ СЃРїРёСЃРєРѕРј СЂРµР±РµСЂ
 ResultShortWay salesmanFast(std::vector <Edge> graph, int cntVert) {
 
     int n = cntVert;
